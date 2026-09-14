@@ -16,19 +16,25 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@v4
 
-      - name: Download APK from Direct Link
-        run: |
-          echo "Downloading settings.apk..."
-          DIRECT_URL="ضع_رابط_التحميل_المباشر_هنا"
-          
-          curl -L -o settings.apk "$DIRECT_URL"
+      - name: Setup Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.10'
 
-          # التأكد من أن الملف تم تحميله وأن حجمه الحقيقي كبير (أكثر من 10 ميغابايت)
+      - name: Download APK from Google Drive using gdown
+        run: |
+          echo "Installing gdown..."
+          pip install gdown
+          
+          echo "Downloading settings.apk from Google Drive..."
+          gdown "1oHPKRIkku0MqGvLtQX00gUYEcdjfGeId" -O settings.apk
+
+          # التحقق من أن الملف تم تحميله وأن حجمه الحقيقي كبير
           if [ -f "settings.apk" ]; then
             FILE_SIZE=$(stat -c%s "settings.apk")
             echo "Downloaded file size in bytes: $FILE_SIZE"
             if [ "$FILE_SIZE" -lt 10000000 ]; then
-              echo "Error: File is too small or link is invalid!"
+              echo "Error: File is too small or download failed!"
               exit 1
             fi
           else
