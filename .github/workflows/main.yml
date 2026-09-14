@@ -1,4 +1,4 @@
-name: Build Magisk Module from Google Drive
+name: Build Magisk Module
 
 on:
   push:
@@ -6,7 +6,7 @@ on:
   workflow_dispatch:
 
 permissions:
- contents: write
+  contents: write
 
 jobs:
   build:
@@ -16,23 +16,19 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@v4
 
-      - name: Download APK from Google Drive
+      - name: Download APK from Direct Link
         run: |
-          echo "Downloading settings.apk from Google Drive..."
-          FILE_ID="1oHPKRIkku0MqGvLtQX00gUYEcdjfGeId"
+          echo "Downloading settings.apk..."
+          DIRECT_URL="ضع_رابط_التحميل_المباشر_هنا"
           
-          # الطريقة الصحيحة لتخطي صفحة التحذير للملفات الكبيرة في جوجل درايف وتحميل الملف الفعلي
-          wget --save-cookies ./cookies.txt --keep-session-cookies --no-check-certificate "https://docs.google.com/uc?export=download&id=${FILE_ID}" -O- | sed -rn 's/.*confirm=([0-9A-Za-z_]+).*/\1\n/p' > ./confirm.txt
-          CONFIRM=$(cat ./confirm.txt)
-          
-          wget --load-cookies ./cookies.txt "https://docs.google.com/uc?export=download&confirm=${CONFIRM}&id=${FILE_ID}" -O settings.apk
+          curl -L -o settings.apk "$DIRECT_URL"
 
-          # التحقق من أن الملف تم تحميله بنجاح وأنه ليس ملف HTML صغير
+          # التأكد من أن الملف تم تحميله وأن حجمه الحقيقي كبير (أكثر من 10 ميغابايت)
           if [ -f "settings.apk" ]; then
             FILE_SIZE=$(stat -c%s "settings.apk")
             echo "Downloaded file size in bytes: $FILE_SIZE"
-            if [ "$FILE_SIZE" -lt 1000000 ]; then
-              echo "Error: Downloaded file is too small, likely an HTML error page!"
+            if [ "$FILE_SIZE" -lt 10000000 ]; then
+              echo "Error: File is too small or link is invalid!"
               exit 1
             fi
           else
