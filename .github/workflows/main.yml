@@ -6,7 +6,7 @@ on:
   workflow_dispatch:
 
 permissions:
-  contents: write
+ contents: write
 
 jobs:
   build:
@@ -21,22 +21,22 @@ jobs:
           echo "Downloading settings.apk from Google Drive..."
           FILE_ID="1oHPKRIkku0MqGvLtQX00gUYEcdjfGeId"
           
-          # أمر تحميل الملفات الكبيرة من Google Drive عبر الـ API العام
-          curl -c ./cookie -s -L "https://drive.google.com/uc?export=download&id=${FILE_ID}" > /dev/null
-          CONFIRM=$(awk '/_warning_/ {print $NF}' ./cookie)
+          # الطريقة الصحيحة لتخطي صفحة التحذير للملفات الكبيرة في جوجل درايف وتحميل الملف الفعلي
+          wget --save-cookies ./cookies.txt --keep-session-cookies --no-check-certificate "https://docs.google.com/uc?export=download&id=${FILE_ID}" -O- | sed -rn 's/.*confirm=([0-9A-Za-z_]+).*/\1\n/p' > ./confirm.txt
+          CONFIRM=$(cat ./confirm.txt)
           
-          if [ -z "$CONFIRM" ]; then
-            curl -Lb ./cookie "https://drive.google.com/uc?export=download&confirm=t&id=${FILE_ID}" -o settings.apk
-          else
-            curl -Lb ./cookie "https://drive.google.com/uc?export=download&confirm=${CONFIRM}&id=${FILE_ID}" -o settings.apk
-          fi
+          wget --load-cookies ./cookies.txt "https://docs.google.com/uc?export=download&confirm=${CONFIRM}&id=${FILE_ID}" -O settings.apk
 
-          # التحقق من أن الملف تم تحميله بنجاح وأن حجمه طبيعي
-          if [ -f "settings.apk" ] && [ -s "settings.apk" ]; then
-            echo "Download completed successfully. File size:"
-            ls -lh settings.apk
+          # التحقق من أن الملف تم تحميله بنجاح وأنه ليس ملف HTML صغير
+          if [ -f "settings.apk" ]; then
+            FILE_SIZE=$(stat -c%s "settings.apk")
+            echo "Downloaded file size in bytes: $FILE_SIZE"
+            if [ "$FILE_SIZE" -lt 1000000 ]; then
+              echo "Error: Downloaded file is too small, likely an HTML error page!"
+              exit 1
+            fi
           else
-            echo "Error: Failed to download APK from Google Drive!"
+            echo "Error: Failed to download APK!"
             exit 1
           fi
 
