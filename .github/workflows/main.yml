@@ -27,7 +27,8 @@ jobs:
           pip install --no-cache-dir gdown
           
           echo "Downloading powerkeeper.apk from Google Drive..."
-          gdown --fuzzy "1y30BLcDnolAz-T7W8VaPyP1cHL6T4RmH" -O powerkeeper.apk
+          # استخدام رابط التنزيل المباشر أو المعرف مباشرة بدون --fuzzy
+          gdown "https://drive.google.com/uc?id=1y30BLcDnolAz-T7W8VaPyP1cHL6T4RmH" -O powerkeeper.apk
 
           # التحقق من أن الملف تم تحميله وأن حجمه الحقيقي أكبر من 2 ميغابايت
           if [ -f "powerkeeper.apk" ]; then
