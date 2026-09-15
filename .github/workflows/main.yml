@@ -1,4 +1,4 @@
-name: Build Magisk Module
+name: Build PowerKeeper Magisk Module
 
 on:
   push:
@@ -21,20 +21,20 @@ jobs:
         with:
           python-version: '3.10'
 
-      - name: Download APK from Google Drive using gdown
+      - name: Download PowerKeeper APK from Google Drive
         run: |
           echo "Installing gdown..."
-          pip install gdown
+          pip install --no-cache-dir gdown
           
-          echo "Downloading settings.apk from Google Drive..."
-          gdown "1-bgXLoEQgSj3QKepX1IPODmbb8AHOLg2" -O settings.apk
+          echo "Downloading powerkeeper.apk from Google Drive..."
+          gdown --fuzzy "1y30BLcDnolAz-T7W8VaPyP1cHL6T4RmH" -O powerkeeper.apk
 
-          # التحقق من أن الملف تم تحميله وأن حجمه الحقيقي كبير (أكثر من 10 ميغابايت)
-          if [ -f "settings.apk" ]; then
-            FILE_SIZE=$(stat -c%s "settings.apk")
+          # التحقق من أن الملف تم تحميله وأن حجمه الحقيقي أكبر من 2 ميغابايت
+          if [ -f "powerkeeper.apk" ]; then
+            FILE_SIZE=$(stat -c%s "powerkeeper.apk")
             echo "Downloaded file size in bytes: $FILE_SIZE"
-            if [ "$FILE_SIZE" -lt 10000000 ]; then
-              echo "Error: File is too small or download failed!"
+            if [ "$FILE_SIZE" -lt 2000000 ]; then
+              echo "Error: File is too small or download failed! (Check if Google Drive link is public)"
               exit 1
             fi
           else
@@ -44,30 +44,31 @@ jobs:
 
       - name: Prepare Magisk Module Structure
         run: |
-          echo "Creating Magisk module directory structure..."
-          mkdir -p magisk_module/system/priv-app/Settings
+          echo "Creating Magisk module directory structure for PowerKeeper..."
+          mkdir -p magisk_module/system/priv-app/PowerKeeper
           mkdir -p output
 
-          cp settings.apk magisk_module/system/priv-app/Settings/settings.apk
+          cp powerkeeper.apk magisk_module/system/priv-app/PowerKeeper/PowerKeeper.apk
 
           cat << 'EOF' > magisk_module/module.prop
-          id=hyperos-settings-mod
-          name=HyperOS Settings Mod
+          id=hyperos-powerkeeper-mod
+          name=HyperOS PowerKeeper Mod
           version=v0.1
           versionCode=1
           author=Halk56855
-          description=Custom Settings app mod for HyperOS
+          description=Custom PowerKeeper app mod for HyperOS
           EOF
 
+          echo "Zipping Magisk module..."
           cd magisk_module
-          zip -r ../output/HyperOS-Settings-Module.zip .
+          zip -r ../output/HyperOS-PowerKeeper-Module.zip .
           cd ..
 
       - name: Upload to Release
         uses: softprops/action-gh-release@v2
         with:
-          tag_name: v0.1-${{ github.run_number }}
-          name: "HyperOS Settings Magisk Module v0.1-${{ github.run_number }}"
+          tag_name: powerkeeper-v0.1-${{ github.run_number }}
+          name: "HyperOS PowerKeeper Magisk Module v0.1-${{ github.run_number }}"
           draft: false
           prerelease: true
           files: |
