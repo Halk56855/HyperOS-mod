@@ -27,9 +27,9 @@ jobs:
           pip install gdown
           
           echo "Downloading settings.apk from Google Drive..."
-          gdown "1oHPKRIkku0MqGvLtQX00gUYEcdjfGeId" -O settings.apk
+          gdown "1-bgXLoEQgSj3QKepX1IPODmbb8AHOLg2" -O settings.apk
 
-          # التحقق من أن الملف تم تحميله وأن حجمه الحقيقي كبير
+          # التحقق من أن الملف تم تحميله وأن حجمه الحقيقي كبير (أكثر من 10 ميغابايت)
           if [ -f "settings.apk" ]; then
             FILE_SIZE=$(stat -c%s "settings.apk")
             echo "Downloaded file size in bytes: $FILE_SIZE"
